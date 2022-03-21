@@ -28,6 +28,7 @@ void write_synth_memcpy(char *b32, uint8_t *name) {
   memcpy(&name[2], b32, len);
   name[len + 2] = 6;          // _synth
   memcpy(&name[len + 3], synth, 6);
+  name[len + 3 + 6 + 1] = 0x00;
 }
 
 void write_synth_strcpy(char *b32, uint8_t *name) {
@@ -43,6 +44,7 @@ void write_synth_strcpy(char *b32, uint8_t *name) {
 
 static char items[ITEMS][ITEM_SIZE] = {0};
 
+void test(char *, void (fn)(char *, uint8_t *));
 void bench();
 
 int main() {
@@ -55,12 +57,15 @@ int main() {
     items[i][ITEM_SIZE - 1] = 0x00;
   }
 
+  test("memcpy", write_synth_memcpy);
+  test("strcpy", write_synth_strcpy);
+
   bench("sprintf", write_synth_sprintf);
   bench("memcpy", write_synth_memcpy);
   bench("strcpy", write_synth_strcpy);
 }
 
-void bench(char *name, int (fn)(char *, uint8_t *)) {
+void bench(char *name, void (fn)(char *, uint8_t *)) {
   uint64_t begin = hrtime();
 
   uint8_t test_name[255] = {0};
@@ -75,4 +80,16 @@ void bench(char *name, int (fn)(char *, uint8_t *)) {
   uint64_t end = hrtime();
   uint64_t diff = end - begin;
   print_timediff(name, diff, ITERATIONS);
+}
+
+void test(char *name, void (fn)(char *, uint8_t *)) {
+  printf("Testing integrity of %s with sprintf original..\n", name);
+
+  for (int i = 0; i < ITEMS; i++) {
+    uint8_t nameA[255] = {0};
+    uint8_t nameB[255] = {0};
+    write_synth_sprintf(items[i], nameA);
+    fn(items[i], nameB);
+    assert(memcmp(nameA, nameB, 255) == 0);
+  }
 }
