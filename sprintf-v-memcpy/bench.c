@@ -19,18 +19,26 @@ void write_synth_sprintf(char *b32, uint8_t *name) {
   sprintf((char *)&name[len + 3], "_synth");  // pseudo-TLD, followed by 0x00
 }
 
-void write_synth_bytes(char *b32, uint8_t *name) {
-  static const uint8_t synth[6] = "_synth";
+void write_synth_memcpy(char *b32, uint8_t *name) {
+  static const uint8_t synth[7] = "_synth";
 
   int len = strlen(b32);
   name[0] = len + 1;
   name[1] = '_';
   memcpy(&name[2], b32, len);
   name[len + 2] = 6;          // _synth
-  memcpy(&name[len + 3], synth, 7);
+  memcpy(&name[len + 3], synth, 6);
 }
 
-void write_synth_bytes_wsize(char *b32, uint8_t *name) {
+void write_synth_strcpy(char *b32, uint8_t *name) {
+  static const char synth[7] = "_synth";
+
+  int len = strlen(b32);
+  name[0] = len + 1;
+  name[1] = '_';
+  strcpy((char *)&name[2], b32);
+  name[len + 2] = 6;          // _synth
+  strcpy((char *)&name[len + 3], synth);
 }
 
 static char items[ITEMS][ITEM_SIZE] = {0};
@@ -48,15 +56,8 @@ int main() {
   }
 
   bench("sprintf", write_synth_sprintf);
-  bench("memcpy", write_synth_bytes);
-
-  uint8_t test_name_a[255] = {0};
-  uint8_t test_name_b[255] = {0};
-
-  write_synth_bytes(items[0], test_name_a);
-  write_synth_sprintf(items[0], test_name_b);
-
-  printf("%s\n%s\n", test_name_a, test_name_b);
+  bench("memcpy", write_synth_memcpy);
+  bench("strcpy", write_synth_strcpy);
 }
 
 void bench(char *name, int (fn)(char *, uint8_t *)) {
