@@ -1,6 +1,6 @@
 
-bench:
-	$(CC) $(CFLAGS) hrtime.c bench-memcpy.c -o ./bench
+bench: hrtime.c bench.c
+	$(CC) $(CFLAGS) hrtime.c bench.c -o ./bench
 
 clean:
 	- rm bench
