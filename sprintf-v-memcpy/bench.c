@@ -20,7 +20,7 @@ void write_synth_sprintf(char *b32, uint8_t *name) {
 }
 
 void write_synth_memcpy(char *b32, uint8_t *name) {
-  static const uint8_t synth[7] = "_synth";
+  static const uint8_t synth[6] = "_synth";
 
   int len = strlen(b32);
   name[0] = len + 1;
@@ -28,7 +28,7 @@ void write_synth_memcpy(char *b32, uint8_t *name) {
   memcpy(&name[2], b32, len);
   name[len + 2] = 6;          // _synth
   memcpy(&name[len + 3], synth, 6);
-  name[len + 3 + 6 + 1] = 0x00;
+  name[len + 3 + 6] = 0x00;
 }
 
 void write_synth_strcpy(char *b32, uint8_t *name) {
@@ -70,7 +70,7 @@ void bench(char *name, void (fn)(char *, uint8_t *)) {
 
   uint8_t test_name[255] = {0};
 
-  int i, j;
+  volatile int i, j;
   for (i = 0; i < ITERATIONS; i++) {
     for (j = 0; j < ITEMS; j++) {
       fn(items[j], test_name);

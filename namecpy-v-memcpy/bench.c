@@ -56,12 +56,12 @@ int name_size(const uint8_t *nt) {
   return off + 1;
 }
 
-int name_cpy(uint8_t *dest, const uint8_t *src) {
+void name_cpy(uint8_t *dest, const uint8_t *src) {
   int size = name_size(src);
   memcpy(dest, src, size);
 }
 
-int just_cpy(uint8_t *dest, const uint8_t *src) {
+void just_cpy(uint8_t *dest, const uint8_t *src) {
   memcpy(dest, src, MAX_NAME);
 }
 
@@ -74,14 +74,14 @@ int main() {
   bench("name_cpy", name_cpy);
 }
 
-void bench(char *name, int (fn)(uint8_t *dest, const uint8_t *src)) {
+void bench(char *name, void (fn)(uint8_t *dest, const uint8_t *src)) {
   uint64_t begin = hrtime();
   int iters = 10000;
 
 
   name_test_t a = {0};
 
-  int i, j;
+  volatile int i, j;
   for (i = 0; i < iters; i++) {
     for (j = 0; j < ARRAY_SIZE(vectors); j++) {
       fn(a.name, vectors[j].name);
